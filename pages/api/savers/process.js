@@ -103,7 +103,7 @@ const calculateAutoCompoundingAPY = async (reserveData, exchangeRate) => {
 
 export default nc()
   .use((req, res, next) => {
-    if (req.headers['authorization'] === process.env.SUPABASE_KEY) {
+    if (req.body?.adminKey === process.env.ADMIN_KEY) {
       next();
     } else {
       res.status(401).end('Unauthorized');
