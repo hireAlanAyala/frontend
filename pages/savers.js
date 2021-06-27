@@ -1,20 +1,18 @@
 import Head from 'next/head';
-import { NavBar } from '../src/components';
+import { NavBar, Savers, Footer } from '../src/components';
 
 export default function Home() {
   return (
-    <div>
+    <div style={{ height: '100vh' }}>
       <Head>
-        <title>Stackup | Compare</title>
+        <title>Stackup | Savers</title>
         <meta name="Stackup | Compare" content="Compare auto-compounding yields" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <NavBar />
-
-      <main></main>
-
-      <footer></footer>
+      <Savers />
+      <Footer />
     </div>
   );
 }

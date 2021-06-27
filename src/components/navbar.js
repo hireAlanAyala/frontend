@@ -10,16 +10,16 @@ export const NavBar = () => {
           <Heading size="lg">Stackup</Heading>
           <Spacer />
           <HStack spacing={['16px', '24px']}>
-            <NextLink href={Router.COMPARE}>
+            <NextLink href={Router.SAVERS}>
               <Link alignItems="center" fontWeight="semibold" fontSize={['sm', 'md']}>
-                Compare
+                Savers
               </Link>
             </NextLink>
             <Button disabled variant="link" fontSize={['sm', 'md']}>
-              Savers
-            </Button>
-            <Button disabled variant="link" fontSize={['sm', 'md']}>
               Invest
+            </Button>
+            <Button size="sm" colorScheme="blue" variant="outline">
+              Connect
             </Button>
           </HStack>
         </Flex>
