@@ -3,3 +3,4 @@ public
 .next
 .*ignore
 .DS_Store
+*.env*

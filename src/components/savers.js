@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { UpDownIcon } from '@chakra-ui/icons';
 
-export const Savers = () => {
+export const Savers = ({ APY }) => {
   return (
     <main>
       <Container maxW="xl" mt="24">
@@ -32,7 +32,7 @@ export const Savers = () => {
               <Flex flexDir="column" justifyContent="center" alignItems="center">
                 <StatLabel>Total saved</StatLabel>
                 <StatNumber>15,000.00 DAI</StatNumber>
-                <StatHelpText>@ 4.53% APY</StatHelpText>
+                <StatHelpText>@ {(APY * 100).toFixed(2)}% APY</StatHelpText>
               </Flex>
             </Stat>
             <VStack spacing="8px" w="100%">
