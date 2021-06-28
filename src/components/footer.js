@@ -1,5 +1,6 @@
 import { Box, Flex, Spacer, HStack, Link } from '@chakra-ui/react';
 import { FaGithub } from 'react-icons/fa';
+import { AiOutlineMail } from 'react-icons/ai';
 
 export const Footer = () => {
   return (
@@ -9,6 +10,9 @@ export const Footer = () => {
           <HStack spacing={['16px', '24px']}>
             <Link fontSize={['sm', 'md']}>
               <FaGithub />
+            </Link>
+            <Link fontSize={['sm', 'md']}>
+              <AiOutlineMail />
             </Link>
             <Link fontSize={['sm', 'md']}>News</Link>
           </HStack>

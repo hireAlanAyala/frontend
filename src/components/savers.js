@@ -25,7 +25,7 @@ import { UpDownIcon } from '@chakra-ui/icons';
 export const Savers = ({ APY }) => {
   return (
     <main>
-      <Container maxW="xl" mt="24">
+      <Container maxW="xl" mt={['8', '24']}>
         <Box rounded="xl" bg="gray.700" p="16px" color="white">
           <VStack spacing="16px">
             <Stat rounded="xl" borderWidth="1px" w="100%" p="16px">
