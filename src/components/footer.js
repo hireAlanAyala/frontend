@@ -17,10 +17,7 @@ export const Footer = () => {
             <Link fontSize={['sm', 'md']}>News</Link>
           </HStack>
           <Spacer />
-          <HStack spacing={['16px', '24px']}>
-            <Link fontSize={['sm', 'md']}>Disclaimer</Link>
-            <Link fontSize={['sm', 'md']}>Privacy</Link>
-          </HStack>
+          <HStack spacing={['16px', '24px']}></HStack>
         </Flex>
       </Box>
     </footer>
