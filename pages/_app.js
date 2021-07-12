@@ -28,9 +28,17 @@ function MyApp({ Component, pageProps }) {
     }),
   );
 
-  const { fetchDAIBalance } = useDAI((state) => ({
+  const { fetchDAIBalance, fetchAllowanceForSavers } = useDAI((state) => ({
     fetchDAIBalance: state.fetchDAIBalance,
+    fetchAllowanceForSavers: state.fetchAllowanceForSavers,
   }));
+
+  const rehydrate = () => {
+    const provider = getProvider();
+    fetchSaversDAIBalance(selectedAddress, provider);
+    fetchDAIBalance(selectedAddress, provider);
+    fetchAllowanceForSavers(selectedAddress, provider);
+  };
 
   useEffect(() => {
     initAccount();
@@ -60,12 +68,6 @@ function MyApp({ Component, pageProps }) {
       }
     })();
   }, [currentTransaction]);
-
-  const rehydrate = () => {
-    const provider = getProvider();
-    fetchSaversDAIBalance(selectedAddress, provider);
-    fetchDAIBalance(selectedAddress, provider);
-  };
 
   return (
     <ChakraProvider theme={theme}>

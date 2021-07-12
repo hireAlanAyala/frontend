@@ -28,25 +28,39 @@ import { ethers } from 'ethers';
 import { useAccounts, useSaversVault, useDAI } from '../hooks';
 import { App } from '../config';
 
+const getTransferAmount = (amount) => {
+  let transferAmount = amount;
+  if (transferAmount[transferAmount.length - 1] === '.') {
+    transferAmount = transferAmount.slice(0, -1);
+  }
+  const [ether, wei] = transferAmount.split('.');
+  const etherAmount = ethers.BigNumber.from(ether).mul(ethers.constants.WeiPerEther);
+  const weiAmount = wei
+    ? ethers.BigNumber.from(wei).mul(ethers.constants.WeiPerEther.div(Math.pow(10, wei.length)))
+    : ethers.BigNumber.from(0);
+  return etherAmount.add(weiAmount);
+};
+
 export const Savers = ({ APY }) => {
   const [direction, setDirection] = useState([App.DAI, App.SAVERS_DAI]);
   const [amount, setAmount] = useState('');
 
   const { getProvider } = useAccounts((state) => ({ getProvider: state.getProvider }));
 
-  const { fetchSaversDAIBalance, saversDAIBalance, saversDAILoading, withdraw } = useSaversVault(
-    (state) => ({
-      fetchSaversDAIBalance: state.fetchSaversDAIBalance,
+  const { saversDAIBalance, saversDAILoading, withdraw, deposit, setCurrentTransaction } =
+    useSaversVault((state) => ({
       saversDAIBalance: state.saversDAIBalance,
       saversDAILoading: state.loading,
       withdraw: state.withdraw,
-    }),
-  );
+      deposit: state.deposit,
+      setCurrentTransaction: state.setCurrentTransaction,
+    }));
 
-  const { fetchDAIBalance, DAIBalance, DAILoading } = useDAI((state) => ({
-    fetchDAIBalance: state.fetchDAIBalance,
+  const { DAIBalance, DAILoading, allowanceForSavers, approve } = useDAI((state) => ({
     DAIBalance: state.DAIBalance,
     DAILoading: state.loading,
+    allowanceForSavers: state.allowanceForSavers,
+    approve: state.approve,
   }));
 
   const loading = saversDAILoading || DAILoading;
@@ -59,33 +73,35 @@ export const Savers = ({ APY }) => {
   const fullDAIDisplayBalance = ethers.utils.commify(daiBalance);
   const roundedDAIDisplayBalance = Math.floor(daiBalance * 100) / 100;
 
+  const approvalRequired = getTransferAmount(amount || '0').gt(allowanceForSavers);
+
   const onSwap = () => {
     setDirection([direction[1], direction[0]]);
   };
 
-  const rehydrate = (provider) => {
-    fetchSaversDAIBalance(selectedAddress, provider);
-    fetchDAIBalance(selectedAddress, provider);
+  const onApprove = async () => {
+    if (!amount) return;
+    const provider = getProvider();
+
+    const transferAmount = getTransferAmount(amount);
+    try {
+      await approve(App.SAVERS_VAULT, transferAmount, provider.getSigner(), setCurrentTransaction);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const onTransfer = async () => {
     if (!amount) return;
     const provider = getProvider();
 
-    let transferAmount = amount;
-    if (transferAmount[transferAmount.length - 1] === '.') {
-      transferAmount = transferAmount.slice(0, -1);
-    }
-    const [ether, wei] = transferAmount.split('.');
-    const etherAmount = ethers.BigNumber.from(ether).mul(ethers.constants.WeiPerEther);
-    const weiAmount = wei
-      ? ethers.BigNumber.from(wei).mul(ethers.constants.WeiPerEther.div(Math.pow(10, wei.length)))
-      : ethers.BigNumber.from(0);
-    transferAmount = etherAmount.add(weiAmount);
-
+    const transferAmount = getTransferAmount(amount);
     if (direction[0] === App.DAI) {
-      // TODO: handle deposit
-      console.log('handle deposit');
+      try {
+        await deposit(transferAmount, provider.getSigner());
+      } catch (error) {
+        console.error(error);
+      }
     } else {
       try {
         await withdraw(transferAmount, provider.getSigner());
@@ -160,9 +176,21 @@ export const Savers = ({ APY }) => {
                 </Button>
               </InputRightElement>
             </InputGroup>
-            <Button onClick={onTransfer} isLoading={loading} w="100%" colorScheme="blue" size="lg">
-              Transfer
-            </Button>
+            {direction[0] === App.DAI && approvalRequired ? (
+              <Button onClick={onApprove} isLoading={loading} w="100%" colorScheme="blue" size="lg">
+                Approve
+              </Button>
+            ) : (
+              <Button
+                onClick={onTransfer}
+                isLoading={loading}
+                w="100%"
+                colorScheme="blue"
+                size="lg"
+              >
+                Transfer
+              </Button>
+            )}
           </VStack>
         </Box>
         <Alert mt="16px" status="info" rounded="xl" fontSize="sm">

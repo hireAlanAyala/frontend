@@ -19,6 +19,9 @@ export const useSaversVault = create((set, get) => ({
   loading: false,
   currentTransaction: null,
   previousTransaction: null,
+  setCurrentTransaction: (tx) => {
+    set(setCurrentTransaction(tx));
+  },
   setPreviousTransaction: (tx) => {
     set(setPreviousTransaction(tx));
   },
@@ -36,6 +39,18 @@ export const useSaversVault = create((set, get) => ({
 
       const saversVault = new ethers.Contract(App.SAVERS_VAULT, SaversVaultABI, provider);
       const tx = await saversVault.withdraw(amount, { gasLimit: 400000 });
+      set(setCurrentTransaction(tx));
+    } catch (error) {
+      set(setLoading(false));
+      throw error;
+    }
+  },
+  deposit: async (amount, provider) => {
+    try {
+      set(setLoading(true));
+
+      const saversVault = new ethers.Contract(App.SAVERS_VAULT, SaversVaultABI, provider);
+      const tx = await saversVault.deposit(amount, { gasLimit: 400000 });
       set(setCurrentTransaction(tx));
     } catch (error) {
       set(setLoading(false));
