@@ -1,4 +1,5 @@
-import { useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect } from 'react';
 import {
   Container,
   Box,
@@ -22,6 +23,7 @@ import {
   Link,
   Tooltip,
   Skeleton,
+  useToast,
 } from '@chakra-ui/react';
 import { UpDownIcon } from '@chakra-ui/icons';
 import { ethers } from 'ethers';
@@ -36,7 +38,9 @@ const getTransferAmount = (amount) => {
   const [ether, wei] = transferAmount.split('.');
   const etherAmount = ethers.BigNumber.from(ether).mul(ethers.constants.WeiPerEther);
   const weiAmount = wei
-    ? ethers.BigNumber.from(wei).mul(ethers.constants.WeiPerEther.div(Math.pow(10, wei.length)))
+    ? ethers.BigNumber.from(wei).mul(
+        ethers.constants.WeiPerEther.div(ethers.BigNumber.from(10).pow(wei.length)),
+      )
     : ethers.BigNumber.from(0);
   return etherAmount.add(weiAmount);
 };
@@ -44,17 +48,29 @@ const getTransferAmount = (amount) => {
 export const Savers = ({ APY }) => {
   const [direction, setDirection] = useState([App.DAI, App.SAVERS_DAI]);
   const [amount, setAmount] = useState('');
+  const [isMax, setIsMax] = useState(false);
+  const [approvalRequired, setApprovalRequired] = useState(false);
+  const toast = useToast();
 
   const { getProvider } = useAccounts((state) => ({ getProvider: state.getProvider }));
 
-  const { saversDAIBalance, saversDAILoading, withdraw, deposit, setCurrentTransaction } =
-    useSaversVault((state) => ({
-      saversDAIBalance: state.saversDAIBalance,
-      saversDAILoading: state.loading,
-      withdraw: state.withdraw,
-      deposit: state.deposit,
-      setCurrentTransaction: state.setCurrentTransaction,
-    }));
+  const {
+    saversDAIBalance,
+    saversDAILoading,
+    withdraw,
+    withdrawMax,
+    deposit,
+    currentTransaction,
+    setCurrentTransaction,
+  } = useSaversVault((state) => ({
+    saversDAIBalance: state.saversDAIBalance,
+    saversDAILoading: state.loading,
+    withdraw: state.withdraw,
+    withdrawMax: state.withdrawMax,
+    deposit: state.deposit,
+    currentTransaction: state.currentTransaction,
+    setCurrentTransaction: state.setCurrentTransaction,
+  }));
 
   const { DAIBalance, DAILoading, allowanceForSavers, approve } = useDAI((state) => ({
     DAIBalance: state.DAIBalance,
@@ -73,17 +89,23 @@ export const Savers = ({ APY }) => {
   const fullDAIDisplayBalance = ethers.utils.commify(daiBalance);
   const roundedDAIDisplayBalance = Math.floor(daiBalance * 100) / 100;
 
-  const approvalRequired = getTransferAmount(amount || '0').gt(allowanceForSavers);
+  const getAmount = () => {
+    if (!isMax) {
+      return amount;
+    } else {
+      return direction[0] === App.DAI ? daiBalance : balance;
+    }
+  };
 
   const onSwap = () => {
     setDirection([direction[1], direction[0]]);
   };
 
   const onApprove = async () => {
-    if (!amount) return;
+    if (!getAmount()) return;
     const provider = getProvider();
 
-    const transferAmount = getTransferAmount(amount);
+    const transferAmount = getTransferAmount(getAmount());
     try {
       await approve(App.SAVERS_VAULT, transferAmount, provider.getSigner(), setCurrentTransaction);
     } catch (error) {
@@ -92,10 +114,10 @@ export const Savers = ({ APY }) => {
   };
 
   const onTransfer = async () => {
-    if (!amount) return;
+    if (!getAmount()) return;
     const provider = getProvider();
 
-    const transferAmount = getTransferAmount(amount);
+    const transferAmount = getTransferAmount(getAmount());
     if (direction[0] === App.DAI) {
       try {
         await deposit(transferAmount, provider.getSigner());
@@ -104,7 +126,11 @@ export const Savers = ({ APY }) => {
       }
     } else {
       try {
-        await withdraw(transferAmount, provider.getSigner());
+        if (isMax) {
+          await withdrawMax(provider.getSigner());
+        } else {
+          await withdraw(transferAmount, provider.getSigner());
+        }
       } catch (error) {
         console.error(error);
       }
@@ -145,6 +171,22 @@ export const Savers = ({ APY }) => {
     setAmount(input);
   };
 
+  useEffect(() => {
+    setApprovalRequired(getTransferAmount(getAmount() || '0').gt(allowanceForSavers));
+  }, [amount, allowanceForSavers, isMax, direction]);
+
+  useEffect(() => {
+    currentTransaction &&
+      toast({
+        title: 'Transaction pending.',
+        description: 'Open MetaMask for details.',
+        status: 'info',
+        duration: 5000,
+        isClosable: true,
+        position: 'top',
+      });
+  }, [currentTransaction]);
+
   return (
     <main>
       <Container maxW="xl" mt={['8', '24']}>
@@ -169,9 +211,19 @@ export const Savers = ({ APY }) => {
               {renderTag('To:', direction[1] === App.DAI)}
             </VStack>
             <InputGroup size="lg">
-              <Input placeholder="Amount" value={amount} onChange={onInputChange} />
+              <Input
+                placeholder="Amount"
+                disabled={isMax}
+                value={getAmount()}
+                onChange={onInputChange}
+              />
               <InputRightElement width="4.5rem">
-                <Button h="1.75rem" size="sm">
+                <Button
+                  onClick={() => setIsMax(!isMax)}
+                  h="1.75rem"
+                  size="sm"
+                  colorScheme={isMax ? 'blue' : undefined}
+                >
                   Max
                 </Button>
               </InputRightElement>

@@ -45,6 +45,18 @@ export const useSaversVault = create((set, get) => ({
       throw error;
     }
   },
+  withdrawMax: async (provider) => {
+    try {
+      set(setLoading(true));
+
+      const saversVault = new ethers.Contract(App.SAVERS_VAULT, SaversVaultABI, provider);
+      const tx = await saversVault.withdrawMax({ gasLimit: 400000 });
+      set(setCurrentTransaction(tx));
+    } catch (error) {
+      set(setLoading(false));
+      throw error;
+    }
+  },
   deposit: async (amount, provider) => {
     try {
       set(setLoading(true));
