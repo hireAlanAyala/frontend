@@ -25,8 +25,11 @@ export const useSaversVault = create((set, get) => ({
   setPreviousTransaction: (tx) => {
     set(setPreviousTransaction(tx));
   },
-  fetchSaversDAIBalance: async (address, provider) => {
-    if (!address) return;
+  fetchSaversDAIBalance: async (address, chainId, provider) => {
+    if (!address || chainId !== App.CHAIN_ID) {
+      set(setSaversDAIBalance(ethers.BigNumber.from(0)));
+      return;
+    }
     set(setLoading(true));
 
     const saversDAI = new ethers.Contract(App.SAVERS_DAI, SaversDAIABI, provider);

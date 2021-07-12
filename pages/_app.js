@@ -11,14 +11,21 @@ const theme = extendTheme({
 });
 
 function MyApp({ Component, pageProps }) {
-  const { initAccount, onChainChanged, onAccountChanged, selectedAddress, getProvider } =
-    useAccounts((state) => ({
-      initAccount: state.initAccount,
-      onChainChanged: state.onChainChanged,
-      onAccountChanged: state.onAccountChanged,
-      selectedAddress: state.selectedAddress,
-      getProvider: state.getProvider,
-    }));
+  const {
+    initAccount,
+    onChainChanged,
+    onAccountChanged,
+    selectedAddress,
+    networkVersion,
+    getProvider,
+  } = useAccounts((state) => ({
+    initAccount: state.initAccount,
+    onChainChanged: state.onChainChanged,
+    onAccountChanged: state.onAccountChanged,
+    selectedAddress: state.selectedAddress,
+    networkVersion: state.networkVersion,
+    getProvider: state.getProvider,
+  }));
 
   const { currentTransaction, setPreviousTransaction, fetchSaversDAIBalance } = useSaversVault(
     (state) => ({
@@ -35,9 +42,9 @@ function MyApp({ Component, pageProps }) {
 
   const rehydrate = () => {
     const provider = getProvider();
-    fetchSaversDAIBalance(selectedAddress, provider);
-    fetchDAIBalance(selectedAddress, provider);
-    fetchAllowanceForSavers(selectedAddress, provider);
+    fetchSaversDAIBalance(selectedAddress, networkVersion, provider);
+    fetchDAIBalance(selectedAddress, networkVersion, provider);
+    fetchAllowanceForSavers(selectedAddress, networkVersion, provider);
   };
 
   useEffect(() => {
@@ -53,7 +60,7 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     rehydrate();
-  }, [selectedAddress]);
+  }, [selectedAddress, networkVersion]);
 
   useEffect(() => {
     (async () => {

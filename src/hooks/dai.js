@@ -12,16 +12,22 @@ export const useDAI = create((set) => ({
   DAIBalance: ethers.BigNumber.from(0),
   allowanceForSavers: ethers.BigNumber.from(0),
   loading: false,
-  fetchDAIBalance: async (address, provider) => {
-    if (!address) return;
+  fetchDAIBalance: async (address, chainId, provider) => {
+    if (!address || chainId !== App.CHAIN_ID) {
+      set(setDAIBalance(ethers.BigNumber.from(0)));
+      return;
+    }
     set(setLoading(true));
 
     const DAI = getDAI(provider);
     const balance = await DAI.balanceOf(address);
     set(setDAIBalance(balance));
   },
-  fetchAllowanceForSavers: async (spender, provider) => {
-    if (!spender) return;
+  fetchAllowanceForSavers: async (spender, chainId, provider) => {
+    if (!spender || chainId !== App.CHAIN_ID) {
+      set(setAllowanceForSavers(ethers.BigNumber.from(0)));
+      return;
+    }
 
     try {
       set(setLoading(true));
