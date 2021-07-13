@@ -30,7 +30,10 @@ export const useAccounts = create((set, get) => ({
     ethereum.selectedAddress;
     ethereum.networkVersion;
 
-    set({ ...setAccount(ethereum.selectedAddress), ...setNetwork(ethereum.networkVersion) });
+    set({
+      ...setAccount(ethereum.selectedAddress || ''),
+      ...setNetwork(ethereum.networkVersion || ''),
+    });
   },
   requestAccounts: async () => {
     if (!get().hasMetaMask()) return;
@@ -78,7 +81,7 @@ export const useAccounts = create((set, get) => ({
     const { ethereum } = window;
     const eventName = 'chainChanged';
     const eventHandler = (chainId) => {
-      set(setNetwork(chainId));
+      set(setNetwork(chainId || ''));
     };
     ethereum.on(eventName, eventHandler);
     return () => window.removeEventListener(eventName, eventHandler);
@@ -89,7 +92,7 @@ export const useAccounts = create((set, get) => ({
     const { ethereum } = window;
     const eventName = 'accountsChanged';
     const eventHandler = (accounts) => {
-      set(setAccount(accounts[0] || null));
+      set(setAccount(accounts[0] || ''));
     };
     ethereum.on(eventName, eventHandler);
     return () => window.removeEventListener(eventName, eventHandler);
