@@ -42,11 +42,6 @@ export const useAccounts = create((set, get) => ({
     if (!get().hasMetaMask()) return;
 
     const { ethereum } = window;
-    if (ethereum.networkVersion.toString() === App.CHAIN_ID.toString()) {
-      set(setNetwork(ethereum.networkVersion));
-      return;
-    }
-
     const chainId = `0x${App.CHAIN_ID.toString(16)}`;
     const chainName = 'Matic Mainnet';
     const nativeCurrency = {

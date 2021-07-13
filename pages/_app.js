@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { useAccounts, useSaversVault, useDAI } from '../src/hooks';
+import { App } from '../src/config';
 
 const theme = extendTheme({
   config: {
@@ -51,6 +52,13 @@ function MyApp({ Component, pageProps }) {
     initAccount();
     const cleanupOnChainChanged = onChainChanged();
     const cleanupOnAccountChanged = onAccountChanged();
+
+    // Fix race condition seen in Firefox
+    setTimeout(() => {
+      if (networkVersion.toString() !== App.CHAIN_ID.toString()) {
+        initAccount();
+      }
+    }, 500);
 
     return () => {
       cleanupOnChainChanged();
