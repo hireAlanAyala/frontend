@@ -53,7 +53,7 @@ function MyApp({ Component, pageProps }) {
     const cleanupOnChainChanged = onChainChanged();
     const cleanupOnAccountChanged = onAccountChanged();
 
-    // Fix race condition seen in Firefox
+    // Quick hack to fix race condition seen in prod
     setTimeout(() => {
       if (networkVersion.toString() !== App.CHAIN_ID.toString()) {
         initAccount();
