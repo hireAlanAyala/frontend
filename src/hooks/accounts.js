@@ -43,7 +43,7 @@ export const useAccounts = create((set, get) => ({
 
     const { ethereum } = window;
     if (ethereum.networkVersion.toString() === App.CHAIN_ID.toString()) {
-      setNetwork(ethereum.networkVersion);
+      set(setNetwork(ethereum.networkVersion));
       return;
     }
 
