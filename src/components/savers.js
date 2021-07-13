@@ -248,7 +248,11 @@ export const Savers = ({ APY }) => {
         <Alert mt="16px" status="info" rounded="xl" fontSize="sm">
           <AlertIcon />
           <Text>
-            <Link color="blue.500" isExternal>
+            <Link
+              color="blue.500"
+              isExternal
+              href="https://stackup.substack.com/p/stackup-savers-v1"
+            >
               Click here
             </Link>{' '}
             to find out more about Savers!
