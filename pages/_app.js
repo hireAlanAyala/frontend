@@ -58,7 +58,7 @@ function MyApp({ Component, pageProps }) {
       if (networkVersion.toString() !== App.CHAIN_ID.toString()) {
         initAccount();
       }
-    }, 100);
+    }, 500);
 
     return () => {
       cleanupOnChainChanged();
