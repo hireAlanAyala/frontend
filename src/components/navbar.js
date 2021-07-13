@@ -39,7 +39,7 @@ export const NavBar = () => {
   }));
 
   const onConnect = async () => {
-    if (!hasMetaMask) {
+    if (!hasMetaMask()) {
       window.open('https://metamask.io/', '_blank');
     } else if (networkVersion.toString() !== App.CHAIN_ID.toString()) {
       switchToPolygon();
@@ -51,9 +51,9 @@ export const NavBar = () => {
   };
 
   const buttonText = () => {
-    if (!hasMetaMask) {
+    if (!hasMetaMask()) {
       return 'Get MetaMask';
-    } else if (networkVersion !== App.CHAIN_ID) {
+    } else if (networkVersion.toString() !== App.CHAIN_ID.toString()) {
       return 'Switch to Polygon';
     } else if (selectedAddress) {
       return startAndEnd(selectedAddress);

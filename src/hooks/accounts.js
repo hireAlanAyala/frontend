@@ -13,16 +13,16 @@ const setNetwork = (networkVersion) => ({
 });
 
 export const useAccounts = create((set, get) => ({
-  selectedAddress: null,
-  networkVersion: null,
-  hasMetaMask: typeof window !== 'undefined' && window.ethereum?.isMetaMask,
+  selectedAddress: '',
+  networkVersion: '',
+  hasMetaMask: () => typeof window !== 'undefined' && window.ethereum?.isMetaMask,
   getProvider: () => {
-    if (!get().hasMetaMask) return new ethers.providers.JsonRpcProvider(App.MATIC_RPC);
+    if (!get().hasMetaMask()) return new ethers.providers.JsonRpcProvider(App.MATIC_RPC);
 
     return new ethers.providers.Web3Provider(window.ethereum, 'any');
   },
   initAccount: () => {
-    if (!get().hasMetaMask) return;
+    if (!get().hasMetaMask()) return;
 
     const { ethereum } = window;
 
@@ -33,13 +33,13 @@ export const useAccounts = create((set, get) => ({
     set({ ...setAccount(ethereum.selectedAddress), ...setNetwork(ethereum.networkVersion) });
   },
   requestAccounts: async () => {
-    if (!get().hasMetaMask) return;
+    if (!get().hasMetaMask()) return;
 
     const { ethereum } = window;
     await ethereum.request({ method: 'eth_requestAccounts' });
   },
   switchToPolygon: async () => {
-    if (!get().hasMetaMask) return;
+    if (!get().hasMetaMask()) return;
 
     const { ethereum } = window;
     const chainId = `0x${App.CHAIN_ID.toString(16)}`;
@@ -73,7 +73,7 @@ export const useAccounts = create((set, get) => ({
     }
   },
   onChainChanged: () => {
-    if (!get().hasMetaMask) return;
+    if (!get().hasMetaMask()) return;
 
     const { ethereum } = window;
     const eventName = 'chainChanged';
@@ -84,7 +84,7 @@ export const useAccounts = create((set, get) => ({
     return () => window.removeEventListener(eventName, eventHandler);
   },
   onAccountChanged: () => {
-    if (!get().hasMetaMask) return;
+    if (!get().hasMetaMask()) return;
 
     const { ethereum } = window;
     const eventName = 'accountsChanged';
