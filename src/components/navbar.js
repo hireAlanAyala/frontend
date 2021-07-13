@@ -41,7 +41,7 @@ export const NavBar = () => {
   const onConnect = async () => {
     if (!hasMetaMask) {
       window.open('https://metamask.io/', '_blank');
-    } else if (networkVersion !== App.CHAIN_ID) {
+    } else if (networkVersion.toString() !== App.CHAIN_ID.toString()) {
       switchToPolygon();
     } else if (selectedAddress) {
       setShowLastTx(true);
